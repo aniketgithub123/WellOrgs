@@ -1,51 +1,43 @@
 # 🛠️ Project Management Tool
 
-A simple full-stack web app for managing projects, tasks, and users using **Flask**, **MySQL**, and basic HTML frontend.
+A simple web-based project management tool built with **Flask**, **MySQL**, and **Vanilla JS (HTML/CSS/JS)**.
 
 ---
 
-## 🚀 Deliverables
+## 📦 Project Deliverables
 
-- ✅ **GitHub Repository**: Clean and well-documented code.
-- ✅ **README.md** with:
-  - Local setup instructions
-  - Deployment guide
-  - API documentation
-- ✅ **Working Demo**: [Public demo link here]([https://your-demo-url.com](https://wellorgs-flask-app.onrender.com))
+- ✅ **GitHub Repository** with clean and well-documented code.
+- ✅ `README.md` with setup and deployment instructions.
+- ✅ **Working Demo** (see below).
+- ✅ **Documentation** of API endpoints and testing steps.
 
 ---
 
-## 📦 Features
+## 🚀 Working Demo
 
-- Add, edit, delete **projects**
-- Create and manage **tasks** per project
-- Assign tasks to **users**
-- RESTful API for frontend/backend integration
+🌐 **Live App:** [https://your-live-link.com](https://wellorgs-flask-app.onrender.com)  
+*(Replace with your deployed link)*
 
 ---
 
-## 🏗️ Setup Instructions
+## 🖥️ Setup Instructions
 
-### 🔧 Backend (Python Flask + MySQL)
+### 📌 Backend (Python Flask + MySQL)
 
-1. ✅ **Create MySQL database** using the schema below.
-2. 🔑 Update MySQL credentials in `app.py` under `DB_CONFIG`.
-3. 📦 Install required Python packages:
-    ```bash
-    pip install flask flask-cors mysql-connector-python
-    ```
-4. ▶️ **Run the Flask server**:
-    ```bash
-    python app.py
-    ```
+1. **Create MySQL database and tables** using the schema below.
+2. **Update** `app.py` with your MySQL credentials.
+3. **Install Python packages**:
+   ```bash
+   pip install flask flask-cors mysql-connector-python
+   ```
+4. **Run the Flask server**:
+   ```bash
+   python app.py
+   ```
 
-> Default runs on `http://127.0.0.1:5000/`
+### 📌 Frontend
 
----
-
-### 🎨 Frontend
-
-Just open `index.html` in your browser manually or use any static file server to host it.
+Just open the `index.html` file in your browser.
 
 ---
 
@@ -56,14 +48,9 @@ CREATE DATABASE project_management;
 
 USE project_management;
 
-CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE
-);
-
 CREATE TABLE projects (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
+    name VARCHAR(255) NOT NULL,
     description TEXT
 );
 
@@ -72,7 +59,84 @@ CREATE TABLE tasks (
     project_id INT,
     title VARCHAR(255) NOT NULL,
     status ENUM('todo', 'inprogress', 'done') DEFAULT 'todo',
-    assigned_user_id INT,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
-    FOREIGN KEY (assigned_user_id) REFERENCES users(id) ON DELETE SET NULL
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
 );
+```
+
+---
+
+## 🌐 API Endpoints
+
+### 📁 Projects
+
+| Method | Endpoint                   | Description              |
+|--------|----------------------------|--------------------------|
+| GET    | `/projects`                | Get all projects         |
+| POST   | `/projects`                | Create a new project     |
+| PUT    | `/projects/<project_id>`   | Update a project         |
+| DELETE | `/projects/<project_id>`   | Delete a project         |
+
+**Request Body for POST/PUT:**
+```json
+{
+  "name": "Project Alpha",
+  "description": "Alpha description"
+}
+```
+
+---
+
+### ✅ Tasks
+
+| Method | Endpoint                                 | Description                     |
+|--------|------------------------------------------|---------------------------------|
+| GET    | `/projects/<project_id>/tasks`           | Get all tasks for a project     |
+| POST   | `/projects/<project_id>/tasks`           | Create a task in a project      |
+| PUT    | `/tasks/<task_id>`                       | Update a task                   |
+| DELETE | `/tasks/<task_id>`                       | Delete a task                   |
+
+**Request Body for POST/PUT:**
+```json
+{
+  "title": "Fix bug",
+  "status": "inprogress"
+}
+```
+
+---
+
+## 🧪 How to Test the App
+
+### ✅ Manual Testing
+- Use [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to test API endpoints.
+- Or, test via browser for `GET` endpoints (e.g., [http://localhost:5000/projects](http://localhost:5000/projects)).
+
+### ✅ Frontend Testing
+- Open `index.html` in a browser.
+- Add, update, and delete projects/tasks.
+- Observe live API integration via browser developer tools.
+
+---
+
+## 📁 Folder Structure
+
+```
+wellorgs/
+│
+├── app.py              # Flask backend
+├── index.html          # Frontend HTML UI
+├── script.js           # JavaScript logic
+├── style.css           # CSS styling
+├── readme.md           # This file
+└── venv/               # Python virtual environment (ignored in Git)
+```
+
+---
+
+## 🔗 License
+
+MIT License — free to use, modify, and share.
+
+---
+
+> 👨‍💻 Built with ❤️ by [Aniket Kadam]. Replace this section with your details if needed.
