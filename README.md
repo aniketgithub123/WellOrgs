@@ -15,8 +15,8 @@ A simple web-based project management tool built with **Flask**, **MySQL**, and 
 
 ## 🚀 Working Demo
 
-🌐 **Live App:** [https://your-live-link.com](https://wellorgs-flask-app.onrender.com)  
-*(Replace with your deployed link)*
+🌐 **Live App:** (https://wellorgs-flask-app.onrender.com)  
+
 
 ---
 
@@ -139,4 +139,4 @@ MIT License — free to use, modify, and share.
 
 ---
 
-> 👨‍💻 Built with ❤️ by [Aniket Kadam]. Replace this section with your details if needed.
+> 👨‍💻 Built with ❤️ by Aniket Kadam
