@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Management Kanban</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      color: #f0f0f0;
+      background: black;
+      overflow-x: hidden;
+    }
+
+    canvas#stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 30px 0;
+      font-size: 2.5rem;
+      color: #ffffff;
+      background: linear-gradient(to right, #4e54c8, #8f94fb);
+      margin: 0;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.5rem;
+      color: #ffffff;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      background-color: #1c1c1c;
+      color: white;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border: 1px solid #8f94fb;
+      outline: none;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      background-color: #8f94fb;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #6d72df;
+    }
+
+    .error {
+      color: red;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 20px;
+    }
+
+    .section {
+      flex: 1 1 350px;
+      background: #1f1f1f;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 0.8s ease;
+    }
+
+    ul {
+      padding: 0;
+      margin-top: 10px;
+      list-style: none;
+    }
+
+    ul li {
+      padding: 8px 12px;
+      border-bottom: 1px solid #333;
+    }
+
+    #kanbanSection {
+      margin: 40px auto;
+      max-width: 1200px;
+      padding: 0 20px;
+    }
+
+    #kanban {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 280px;
+      padding: 15px;
+      border-radius: 12px;
+      background: #2c2c2c;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 1s ease;
+    }
+
+    .column h3 {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+      color: #8f94fb;
+    }
+
+    .task {
+      background-color: #3a3a3a;
+      color: #f0f0f0;
+      margin: 10px 0;
+      padding: 12px 15px;
+      border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+      cursor: grab;
+    }
+
+    .task:hover {
+      transform: scale(1.02);
+      background-color: #444;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      #kanban {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .section {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<h1>Project Management Kanban Board</h1>
+
+<div class="container">
+  <!-- Project Section -->
+  <section class="section">
+    <h2>Add Project</h2>
+    <label for="projectName">Project Name *</label>
+    <input type="text" id="projectName" placeholder="Enter project name" />
+    <label for="projectDescription">Project Description</label>
+    <textarea id="projectDescription" rows="3"></textarea>
+    <div id="projectError" class="error"></div>
+    <button id="addProjectBtn">Add Project</button>
+  </section>
+
+  <!-- User Section -->
+  <section class="section">
+    <h2>Add User</h2>
+    <label for="username">Username *</label>
+    <input type="text" id="username" placeholder="Enter username" />
+    <div id="userError" class="error"></div>
+    <button id="addUserBtn">Add User</button>
+  </section>
+
+  <!-- Task Section -->
+  <section class="section">
+    <h2>Add Task</h2>
+    <label for="projectDropdown">Select Project *</label>
+    <select id="projectDropdown"></select>
+    <label for="taskTitle">Task Title *</label>
+    <input type="text" id="taskTitle" placeholder="Enter task title" />
+    <label for="taskStatus">Status</label>
+    <select id="taskStatus">
+      <option value="todo">To Do</option>
+      <option value="inprogress">In Progress</option>
+      <option value="done">Done</option>
+    </select>
+    <label for="userDropdown">Assign User</label>
+    <select id="userDropdown">
+      <option value="">Unassigned</option>
+    </select>
+    <div id="taskError" class="error"></div>
+    <button id="addTaskBtn">Add Task</button>
+  </section>
+</div>
+
+<section id="kanbanSection">
+  <h2>Kanban Board</h2>
+  <div id="kanban">
+    <div class="column" data-status="todo"><h3>To Do</h3></div>
+    <div class="column" data-status="inprogress"><h3>In Progress</h3></div>
+    <div class="column" data-status="done"><h3>Done</h3></div>
+  </div>
+</section>
+
+<!-- INLINE JAVASCRIPT -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    loadProjects();
+    loadUsers();
+    loadTasks();
+
+    document.getElementById("addProjectBtn").addEventListener("click", () => {
+      const name = document.getElementById("projectName").value.trim();
+      const description = document.getElementById("projectDescription").value.trim();
+      const errorDiv = document.getElementById("projectError");
+      errorDiv.textContent = "";
+
+      if (!name) {
+        errorDiv.textContent = "Project name is required.";
+        return;
+      }
+
+      fetch("/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, description })
+      })
+      .then(res => res.json().then(data => ({ status: res.status, body: data })))
+      .then(({ status, body }) => {
+        if (status === 201) {
+          alert("✅ Project added!");
+          document.getElementById("projectName").value = "";
+          document.getElementById("projectDescription").value = "";
+          loadProjects();
+        } else {
+          errorDiv.textContent = body.error || "❌ Failed to add project.";
+        }
+      });
+    });
+
+    document.getElementById("addUserBtn").addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      const errorDiv = document.getElementById("userError");
+      errorDiv.textContent = "";
+
+      if (!username) {
+        errorDiv.textContent = "Username is required.";
+        return;
+      }
+
+      fetch("/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username })
+      })
+      .then(res => res.json().then(data => ({ status: res.status, body: data })))
+      .then(({ status, body }) => {
+        if (status === 201) {
+          alert("✅ User added!");
+          document.getElementById("username").value = "";
+          loadUsers();
+        } else {
+          errorDiv.textContent = body.error || "❌ Failed to add user.";
+        }
+      });
+    });
+
+    document.getElementById("addTaskBtn").addEventListener("click", () => {
+      const title = document.getElementById("taskTitle").value.trim();
+      const projectId = document.getElementById("projectDropdown").value;
+      const status = document.getElementById("taskStatus").value;
+      const assignedUser = document.getElementById("userDropdown").value;
+      const errorDiv = document.getElementById("taskError");
+      errorDiv.textContent = "";
+
+      if (!title || !projectId) {
+        errorDiv.textContent = "Task title and project are required.";
+        return;
+      }
+
+      fetch("/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, project_id: projectId, status, assigned_to: assignedUser || null })
+      })
+      .then(res => res.json().then(data => ({ status: res.status, body: data })))
+      .then(({ status, body }) => {
+        if (status === 201) {
+          alert("✅ Task added!");
+          document.getElementById("taskTitle").value = "";
+          loadTasks();
+        } else {
+          errorDiv.textContent = body.error || "❌ Failed to add task.";
+        }
+      });
+    });
+  });
+
+  function loadProjects() {
+    fetch("/projects")
+      .then(res => res.json())
+      .then(projects => {
+        const dropdown = document.getElementById("projectDropdown");
+        dropdown.innerHTML = '<option value="">Select Project</option>';
+        projects.forEach(p => {
+          const opt = document.createElement("option");
+          opt.value = p.id;
+          opt.textContent = p.name;
+          dropdown.appendChild(opt);
+        });
+      });
+  }
+
+  function loadUsers() {
+    fetch("/users")
+      .then(res => res.json())
+      .then(users => {
+        const dropdown = document.getElementById("userDropdown");
+        dropdown.innerHTML = '<option value="">Unassigned</option>';
+        users.forEach(u => {
+          const opt = document.createElement("option");
+          opt.value = u.id;
+          opt.textContent = u.username;
+          dropdown.appendChild(opt);
+        });
+      });
+  }
+
+  function loadTasks() {
+    fetch("/tasks")
+      .then(res => res.json())
+      .then(tasks => {
+        const columns = {
+          todo: document.querySelector('.column[data-status="todo"]'),
+          inprogress: document.querySelector('.column[data-status="inprogress"]'),
+          done: document.querySelector('.column[data-status="done"]')
+        };
+
+        for (let col in columns) {
+          columns[col].querySelectorAll(".task").forEach(el => el.remove());
+        }
+
+        tasks.forEach(task => {
+          const div = document.createElement("div");
+          div.className = "task";
+          div.textContent = `${task.title}${task.assigned_to ? " — " + task.assigned_to : ""}`;
+          columns[task.status]?.appendChild(div);
+        });
+      });
+  }
+
+  // Starry Background
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function initStars() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+    for (let i = 0; i < 100; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5,
+        speed: Math.random() * 0.8 + 0.2
+      });
+    }
+  }
+
+  function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'white';
+    stars.forEach(star => {
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+      ctx.fill();
+      star.y += star.speed;
+      if (star.y > canvas.height) {
+        star.y = 0;
+        star.x = Math.random() * canvas.width;
+      }
+    });
+    requestAnimationFrame(animateStars);
+  }
+
+  window.addEventListener('resize', initStars);
+  initStars();
+  animateStars();
+</script>
+<script src="script.js"></script>
+</body>
+</html>
