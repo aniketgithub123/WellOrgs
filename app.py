@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory, g
 import mysql.connector
 from flask_cors import CORS
 import sys
+import os
 
 app = Flask(__name__, static_url_path='', static_folder='.')
 CORS(app)
@@ -190,4 +191,6 @@ def task_operations(task_id):
         return jsonify({"message": "Task deleted"})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))  # Use 10000 as default, or what you set in render.yaml
+    app.run(host="0.0.0.0", port=port)
+
