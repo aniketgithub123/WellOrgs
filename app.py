@@ -7,13 +7,13 @@ import os
 app = Flask(__name__, static_url_path='', static_folder='.')
 CORS(app)
 
-# --- Database config ---
+# --- TiDB Cloud Database config ---
 DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "aniket123",
-    "database": "project_management",
-    "port": 3306
+    "host": "gateway01.us-west-2.prod.aws.tidbcloud.com",
+    "user": "2QtpTawfnPeuRgg.root",
+    "password": "NtPnjB9T5IqnjsZ6",
+    "database": "project",
+    "port": 4000
 }
 
 # --- Helper to get DB connection and cursor per request ---
@@ -22,9 +22,9 @@ def get_db():
         try:
             g.db_conn = mysql.connector.connect(**DB_CONFIG)
             g.db_cursor = g.db_conn.cursor(dictionary=True)
-            print("✅ Connected to MySQL database.")
+            print("✅ Connected to TiDB cloud database.")
         except mysql.connector.Error as err:
-            print(f"❌ Failed to connect to MySQL: {err}")
+            print(f"❌ Failed to connect to TiDB: {err}")
             sys.exit(1)
     return g.db_conn, g.db_cursor
 
@@ -36,7 +36,7 @@ def close_db(error):
         db_cursor.close()
     if db_conn is not None and db_conn.is_connected():
         db_conn.close()
-        print("❎ MySQL connection closed.")
+        print("❎ TiDB cloud connection closed.")
 
 # --- Helper Functions ---
 
@@ -80,7 +80,6 @@ def users():
             conn.commit()
             return jsonify({"message": "User created"}), 201
         except mysql.connector.IntegrityError:
-            # Instead of returning error, add silently (if you want) or ignore duplicate errors:
             return jsonify({"message": "User already exists"}), 200
 
 # --- Projects ---
@@ -98,8 +97,6 @@ def projects():
         description = data.get("description", "")
         if not name:
             return jsonify({"error": "Project name is required"}), 400
-        # Ignore duplicate error: just insert anyway or ignore on conflict (MySQL doesn't have native 'ON CONFLICT DO NOTHING')
-        # So, do a try-except:
         try:
             cursor.execute("INSERT INTO projects (name, description) VALUES (%s, %s)", (name, description))
             conn.commit()
@@ -191,6 +188,5 @@ def task_operations(task_id):
         return jsonify({"message": "Task deleted"})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Use 10000 as default, or what you set in render.yaml
+    port = int(os.environ.get("PORT", 10000))  # default port or as set in environment
     app.run(host="0.0.0.0", port=port)
-
